@@ -18,7 +18,7 @@ func TestDefaultKazaamGetUnknownTransform(t *testing.T) {
 
 func TestKazaamWithRegisteredTransform(t *testing.T) {
 	kc := NewDefaultConfig()
-	kc.RegisterTransform("3rd-party", func(spec *transform.Config, data []byte) ([]byte, error) {
+	_ = kc.RegisterTransform("3rd-party", func(spec *transform.Config, data []byte) ([]byte, error) {
 		data, _ = jsonparser.Set(data, []byte("doesnt-exist"), "does-exist")
 		return data, nil
 	})
@@ -84,13 +84,24 @@ func ExampleNew() {
 	// {"output":"input value"}
 }
 
+func ExampleArrOfArrs() {
+	// Initialize a default Kazaam instance (i.e. same as NewKazaam(spec string))
+	k, _ := New(`[{"operation": "shift", "spec": {"arr_outputs": [{"operation": "shift", "spec": {"output": "arr"}, "over": "input"}]}, "over": "inputs"}, {"operation": "shift", "spec":{"array_of_arrays_outputs":"inputs"}}]`, NewDefaultConfig())
+
+	kazaamOut, _ := k.TransformJSONStringToString(`{"inputs":[{"input":[{"arr":[{"input":1},{"input":2},{"input":3}]},{"arr":[{"input":4},{"input":5},{"input":6}]}]}], "test":"test"}`)
+
+	fmt.Println(kazaamOut)
+	// Output:
+	// {"array_of_arrays_outputs":[{"arr_outputs":[{"output":[{"input":1},{"input":2},{"input":3}]},{"output":[{"input":4},{"input":5},{"input":6}]}]}]}
+}
+
 func ExampleConfig_RegisterTransform() {
 	// use the default config to have access to built-in kazaam transforms
 	kc := NewDefaultConfig()
 
 	// register the new custom transform called "copy" which supports copying the
 	// value of a top-level key to another top-level key
-	kc.RegisterTransform("copy", func(spec *transform.Config, data []byte) ([]byte, error) {
+	_ = kc.RegisterTransform("copy", func(spec *transform.Config, data []byte) ([]byte, error) {
 		// the internal `Spec` will contain a mapping of source and target keys
 		for targetField, sourceFieldInt := range *spec.Spec {
 			sourceField := sourceFieldInt.(string)

@@ -1,3 +1,6 @@
+# Note
+This is a fork with the added ability to process an array of arrays [example](#shift-array-of-arrays).
+
 # kazaam
 
 [![Travis Build Status](https://img.shields.io/travis/qntfy/kazaam.svg?branch=master)](https://travis-ci.com/qntfy/kazaam)
@@ -52,6 +55,85 @@ Kazaam currently supports the following transforms:
 - default
 - pass
 - delete
+
+### [Shift array of arrays](#shift-array-of-arrays)
+schema:
+```javascript
+[
+  {
+    "operation" : "shift",
+    "spec": {
+      "arr_ID": [
+        {
+          "operation" : "shift",
+          "spec": {
+            "firstId": "fId",
+            "secondId": "sId"
+          },
+          "over": "arr"
+        }
+      ]
+    },
+    "over": "clients"
+  },
+  {
+    "operation": "shift",
+    "spec": {
+      "users": "clients"
+    }
+  }
+]
+```
+
+input:
+```javascript
+{
+    "clients": [
+        {
+            "arr": [
+                {
+                    "fId": 1,
+                    "sId": 2
+                },
+                {
+                    "fId": 11,
+                    "sId": 22
+                }
+            ]
+        },
+        {
+            "arr": [
+                {
+                    "fId": 3,
+                    "sId": 4
+                },
+                {
+                    "fId": 33,
+                    "sId": 44
+                }
+            ]
+        }
+    ]
+}
+```
+
+result:
+```javascript
+{
+    "users":[
+  {
+      "arr_ID":[
+          {"firstId":1,"secondId":2},
+          {"firstId":11,"secondId":22}]
+  },
+  {
+      "arr_ID":[
+          {"firstId":3,"secondId":4},
+          {"firstId":33,"secondId":44}
+    ]}
+]}
+```
+
 
 ### Shift
 

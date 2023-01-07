@@ -208,6 +208,22 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 			if err != nil {
 				return data, transformErrorType(err)
 			}
+
+			for key, valSpec := range *specObj.Spec {
+				var over string
+				transformedDataList, err, over = checkOver(valSpec, transformedDataList)
+				if err != nil {
+					return nil, err
+				}
+				if len(over) != 0 {
+					defer func(s map[string]interface{}, key string, val interface{}) {
+						s[key] = val
+					}(*specObj.Spec, key, valSpec)
+					f := *specObj.Spec
+					f[key] = over
+				}
+			}
+
 			for i, value := range transformedDataList {
 				x := make([]byte, len(value))
 				copy(x, value)
@@ -245,6 +261,70 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 		}
 	}
 	return data, transformErrorType(err)
+}
+
+// checkOver checks if the rule is a schema
+func checkOver(valSpec interface{}, transformedDataList [][]byte) ([][]byte, error, string) {
+	var over string
+
+	switch valSpec.(type) {
+	case []interface{}:
+
+		var specElements specs
+
+		for _, arr := range valSpec.([]interface{}) {
+			m := arr.(map[string]interface{})
+
+			var operation string
+			var spc map[string]interface{}
+
+			opr, ok := m["operation"]
+			if !ok {
+				continue
+			}
+
+			operation = opr.(string)
+
+			s, ok := m["spec"]
+			if ok {
+				spc = s.(map[string]interface{})
+			}
+
+			ovr, ok := m["over"]
+			if ok {
+				over = ovr.(string)
+			}
+
+			spec1 := spec{
+				&transform.Config{
+					Spec: &spc,
+				},
+				&operation,
+				&over,
+			}
+			spec1.KeySeparator = "."
+			specElements = append(specElements, spec1)
+		}
+
+		if len(specElements) == 0 {
+			return transformedDataList, nil, over
+		}
+
+		k := &Kazaam{
+			specJSON: specElements,
+			config:   NewDefaultConfig(),
+		}
+
+		for i, dataList := range transformedDataList {
+			res, err := k.Transform(dataList)
+			if err != nil {
+				return nil, err, over
+			}
+			transformedDataList[i] = res
+		}
+	}
+
+	return transformedDataList, nil, over
 }
 
 // TransformJSONStringToString loads the JSON string `data`, transforms
