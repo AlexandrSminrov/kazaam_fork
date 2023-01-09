@@ -275,25 +275,19 @@ func checkOver(valSpec interface{}, transformedDataList [][]byte) ([][]byte, err
 		for _, arr := range valSpec.([]interface{}) {
 			m := arr.(map[string]interface{})
 
-			var operation string
 			var spc map[string]interface{}
 
-			opr, ok := m["operation"]
+			operation, ok := m["operation"].(string)
 			if !ok {
 				continue
 			}
 
-			operation = opr.(string)
-
-			s, ok := m["spec"]
-			if ok {
-				spc = s.(map[string]interface{})
+			spc, ok = m["spec"].(map[string]interface{})
+			if !ok {
+				continue
 			}
 
-			ovr, ok := m["over"]
-			if ok {
-				over = ovr.(string)
-			}
+			over, _ = m["over"].(string)
 
 			spec1 := spec{
 				&transform.Config{
