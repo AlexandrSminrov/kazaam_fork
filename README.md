@@ -1,5 +1,5 @@
 # Note
-This is a fork with the added ability to process an array of arrays [example](#shift-array-of-arrays).
+This is a fork with the added ability to process a schema of schemas [example](#shift-array-of-arrays).
 
 # kazaam
 
