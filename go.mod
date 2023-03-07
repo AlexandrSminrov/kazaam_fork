@@ -1,4 +1,4 @@
-module AlexandrSminrov/kazaam_fork
+module github.com/AlexandrSminrov/kazaam_fork
 
 go 1.18
 
