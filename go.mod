@@ -1,6 +1,6 @@
-module github.com/qntfy/kazaam/v4
+module AlexandrSminrov/kazaam_fork
 
-go 1.12
+go 1.18
 
 require (
 	github.com/gofrs/uuid v3.2.0+incompatible
