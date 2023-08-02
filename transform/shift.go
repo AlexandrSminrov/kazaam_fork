@@ -53,7 +53,6 @@ func Shift(spec *Config, data []byte) ([]byte, error) {
 					return nil, err
 				}
 			}
-
 			// if array flag set, encapsulate data
 			if array {
 				// bookend() is destructive to underlying slice, need to copy.
@@ -61,6 +60,10 @@ func Shift(spec *Config, data []byte) ([]byte, error) {
 				tmp := make([]byte, len(dataForV), len(dataForV)+2)
 				copy(tmp, dataForV)
 				dataForV = bookend(tmp, '[', ']')
+			}
+			// if DeleteEmpty flag skip filling
+			if spec.DeleteEmpty && CheckEmpty(string(dataForV)) {
+				continue
 			}
 			// Note: following pattern from current Shift() - if multiple elements are included in an array,
 			// they will each successively overwrite each other and only the last element will be included

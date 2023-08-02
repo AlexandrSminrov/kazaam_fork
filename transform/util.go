@@ -36,9 +36,10 @@ func (s SpecError) Error() string {
 // `spec` object can be an arbitrary json configuration for the transform.
 type Config struct {
 	Spec         *map[string]interface{} `json:"spec"`
+	KeySeparator string                  `json:"keySeparator"`
 	Require      bool                    `json:"require,omitempty"`
 	InPlace      bool                    `json:"inplace,omitempty"`
-	KeySeparator string                  `json:"keySeparator"`
+	DeleteEmpty  bool                    `json:"deleteEmpty,omitempty"`
 }
 
 var (
@@ -292,4 +293,15 @@ func HandleUnquotedStrings(value []byte, dt jsonparser.ValueType) []byte {
 		value = bookend(tmp, '"', '"')
 	}
 	return value
+}
+
+var emptyData = map[string]struct{}{
+	"[]":   {},
+	"":     {},
+	"null": {},
+}
+
+func CheckEmpty(value string) bool {
+	_, isEmpty := emptyData[value]
+	return isEmpty
 }

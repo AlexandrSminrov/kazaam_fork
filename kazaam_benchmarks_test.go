@@ -1,9 +1,8 @@
 package kazaam_test
 
 import (
+	kazaam "github.com/AlexandrSminrov/kazaam_fork"
 	"testing"
-
-	"github.com/qntfy/kazaam/v4"
 )
 
 const (

@@ -187,6 +187,8 @@ The shift transform also supports a `"require"` field. When set to `true`,
 Kazaam will throw an error if *any* of the paths in the source JSON are not
 present.
 
+It can also use the `"deleteEmpty"` flag to skip empty fields of the final result.
+
 Finally, shift by default is destructive. For in-place operation, an optional `"inplace"`
 field may be set.
 

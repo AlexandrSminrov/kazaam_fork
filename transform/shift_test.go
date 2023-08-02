@@ -1,6 +1,8 @@
 package transform
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestShift(t *testing.T) {
 	jsonOut := `{"Rating":3,"example":{"old":{"value":3}}}`
@@ -230,7 +232,31 @@ func TestShiftWithEndArrayAccess(t *testing.T) {
 	if !areEqual {
 		t.Error("Transformed data does not match expectation.")
 		t.Log("Expected:   ", jsonOut)
-		t.Log("Actual:     ", kazaamOut)
+		t.Log("Actual:     ", string(kazaamOut))
+		t.FailNow()
+	}
+}
+
+func TestShiftDeleteEmpty(t *testing.T) {
+	spec := `{"outputArray": "docs[*].data.key", "id": "test[*]"}`
+	jsonIn := `{"docs": [{"data": {"key": "val1"}},{"data": {"key": "val2"}}]}`
+	jsonOut := `{"outputArray":["val1","val2"]}`
+
+	cfg := getConfig(spec, false)
+	cfg.DeleteEmpty = true
+	kazaamOut, err := getTransformTestWrapper(Shift, cfg, jsonIn)
+	if err != nil {
+		t.Error("Error on transform.")
+		t.Log("Expected: ", jsonOut)
+		t.Log("Error: ", err.Error())
+		t.FailNow()
+	}
+
+	areEqual, _ := checkJSONBytesEqual(kazaamOut, []byte(jsonOut))
+	if !areEqual {
+		t.Error("Transformed data does not match expectation.")
+		t.Log("Expected:   ", jsonOut)
+		t.Log("Actual:     ", string(kazaamOut))
 		t.FailNow()
 	}
 }

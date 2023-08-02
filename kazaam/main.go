@@ -10,7 +10,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/qntfy/kazaam/v4"
+	"github.com/AlexandrSminrov/kazaam_fork"
 )
 
 var (
