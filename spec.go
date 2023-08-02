@@ -11,8 +11,9 @@ import (
 // describes the configuration of the transform.
 type spec struct {
 	*transform.Config
-	Operation *string `json:"operation"`
-	Over      *string `json:"over,omitempty"`
+	Operation      *string `json:"operation"`
+	Over           *string `json:"over,omitempty"`
+	OverIsOptional bool    `json:"overIsOptional,omitempty"`
 }
 
 type specInt spec

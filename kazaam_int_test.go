@@ -263,6 +263,31 @@ func TestShiftWithOverAndWildcard(t *testing.T) {
 	}
 }
 
+func TestShiftWithOverIsOptional(t *testing.T) {
+	spec := `[{"operation": "shift","spec": {"docs": "documents[*]", "test":"test"}, "deleteEmpty": true}, {"operation": "shift",  "spec": {"data": "norm.text"}, "overIsOptional":true, "over":"docs"}]`
+	jsonIn := `{"test":"no docs"}`
+	jsonOut := `{"test":"no docs"}`
+
+	kazaamTransform, _ := kazaam.NewKazaam(spec)
+	kazaamOut, err := kazaamTransform.TransformJSONStringToString(jsonIn)
+
+	if err != nil {
+		t.Error("Transform produced error.")
+		t.Log("Error: ", err.Error())
+		t.Log("Expected: ", jsonOut)
+		t.Log("Actual:   ", kazaamOut)
+		t.FailNow()
+	}
+
+	areEqual, _ := checkJSONStringsEqual(kazaamOut, jsonOut)
+	if !areEqual {
+		t.Error("Transformed data does not match expectation.")
+		t.Log("Expected: ", jsonOut)
+		t.Log("Actual:   ", kazaamOut)
+		t.FailNow()
+	}
+}
+
 func TestKazaamTransformMultiOpWithOver(t *testing.T) {
 	spec := `[{
 		"operation": "concat",

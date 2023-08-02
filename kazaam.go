@@ -178,6 +178,8 @@ func (k *Kazaam) Transform(data []byte) ([]byte, error) {
 	return d, err
 }
 
+const keyNotFound = "Key path not found"
+
 // TransformInPlace takes the byte slice `data`, transforms it according
 // to the loaded spec, and modifies the byte slice in place.
 //
@@ -206,7 +208,9 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 				transformedDataList = append(transformedDataList, transform.HandleUnquotedStrings(value, dataType))
 			}, overKeys...)
 			if err != nil {
-				return data, transformErrorType(err)
+				if !specObj.OverIsOptional && err.Error() != keyNotFound {
+					return data, transformErrorType(err)
+				}
 			}
 
 			for key, valSpec := range *specObj.Spec {
@@ -247,9 +251,11 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 			if len(overKeys) == 0 {
 				data = buffer.Bytes()
 			} else {
-				data, err = jsonparser.Set(data, buffer.Bytes(), overKeys...)
-				if err != nil {
-					return data, transformErrorType(err)
+				if !specObj.OverIsOptional && len(buffer.Bytes()) != 2 {
+					data, err = jsonparser.Set(data, buffer.Bytes(), overKeys...)
+					if err != nil {
+						return data, transformErrorType(err)
+					}
 				}
 			}
 
@@ -290,11 +296,11 @@ func checkOver(valSpec interface{}, transformedDataList [][]byte) ([][]byte, err
 			over, _ = m["over"].(string)
 
 			spec1 := spec{
-				&transform.Config{
+				Config: &transform.Config{
 					Spec: &spc,
 				},
-				&operation,
-				&over,
+				Operation: &operation,
+				Over:      &over,
 			}
 			spec1.KeySeparator = "."
 			specElements = append(specElements, spec1)
